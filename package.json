@@ -1,11 +1,10 @@
 {
-  {
   "name": "fetch-lake-levels",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "wrangler dev",
-    "deploy": "wrangler deploy",  // <--- Add this line
+    "deploy": "wrangler deploy",
     "test": "vitest"
   },
   "devDependencies": {
