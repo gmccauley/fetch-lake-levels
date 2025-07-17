@@ -1,0 +1,19 @@
+name = "fetch-lake-levels" # Replace with your worker's name
+main = "src/index.js" # Path to your worker's entry file (adjust if different)
+compatibility_date = "2024-07-16" # Use a recent compatibility date
+
+[observability.logs]
+enabled = true
+
+# D1 Database Binding
+# This connects your Worker to your D1 database.
+[[d1_databases]]
+binding = "DB" # This is the name you'll use in your worker (e.g., env.DB)
+database_name = "lake-levels" # Replace with the name of your D1 database
+database_id = "48ceff65-c3d0-4839-91f9-505f1f06ad62" # Replace with the ID of your D1 database
+
+# Scheduled Triggers (Cron Jobs)
+# This defines when your worker will run automatically.
+# You can have multiple schedules.
+[triggers]
+crons = [ "0 10 * * *" ]
