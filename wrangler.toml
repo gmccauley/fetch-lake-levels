@@ -16,4 +16,4 @@ database_id = "48ceff65-c3d0-4839-91f9-505f1f06ad62" # Replace with the ID of yo
 # This defines when your worker will run automatically.
 # You can have multiple schedules.
 [triggers]
-crons = [ "0 10 * * *" ]
+crons = [ "0 11 * * *" ]

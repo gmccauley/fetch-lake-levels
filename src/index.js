@@ -68,27 +68,27 @@ export default {
           //console.log('timestamp0: ' + timestamp0)
 
           const date1 = new Date(timestamp0);
-          date1.setDate(date0.getUTCDate() - 2)
+          date1.setDate(date0.getUTCDate() - 1)
           const timestamp1 = date1.toISOString().split('T')[0];
           //console.log('timestamp1: ' + timestamp1)
 
-          date1.setDate(date0.getUTCDate() - 3)
+          date1.setDate(date0.getUTCDate() - 2)
           const timestamp2 = date1.toISOString().split('T')[0];
           //console.log('timestamp2: ' + timestamp2)
 
-          date1.setDate(date0.getUTCDate() - 4)
+          date1.setDate(date0.getUTCDate() - 3)
           const timestamp3 = date1.toISOString().split('T')[0];
           //console.log('timestamp3: ' + timestamp3)
 
-          date1.setDate(date0.getUTCDate() - 8)
+          date1.setDate(date0.getUTCDate() - 7)
           const timestamp7 = date1.toISOString().split('T')[0];
           //console.log('timestamp7: ' + timestamp7)
 
-          date1.setDate(date0.getUTCDate() - 15)
+          date1.setDate(date0.getUTCDate() - 14)
           const timestamp14 = date1.toISOString().split('T')[0];
           //console.log('timestamp14: ' + timestamp14)
 
-          date1.setDate(date0.getUTCDate() - 31)
+          date1.setDate(date0.getUTCDate() - 30)
           const timestamp30 = date1.toISOString().split('T')[0];
           //console.log('timestamp30: ' + timestamp30)
 
