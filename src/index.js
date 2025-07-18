@@ -56,12 +56,12 @@ export default {
 
           console.log(`Attempting to read all data from D1 table: ${tableName} for HTML display.`);
           const { results } = await env.DB.prepare(`SELECT * FROM ${tableName}`).all();
-          console.log('DB Query Result:', results); // <-- Check this!
+          //console.log('DB Query Result:', results); // <-- Check this!
 
           const allNames = results.map(item => item.full_name);
           const uniqueNames = Array.from(new Set(allNames));
-          console.log('uniqueNames:');
-          console.log(uniqueNames);
+          //console.log('uniqueNames:');
+          //console.log(uniqueNames);
 
           const timestamp0 = results[results.length - 1].timestamp;
           const date0 = new Date(timestamp0);
