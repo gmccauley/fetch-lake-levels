@@ -159,7 +159,7 @@ export default {
                   box-sizing: border-box; /* Include padding in width */
                 }
                 /* Responsive adjustments for smaller screens */
-                @media (max-width: 768px) {
+                @media (max-width: 3000px) {
                   .chart-container {
                     width: 100%;
                     padding: 15px;
