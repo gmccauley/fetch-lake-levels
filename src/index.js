@@ -168,7 +168,7 @@ export default {
             tableData += '<tr><th colspan="4" style="text-align:center">Latest Reading</th></tr>';
             tableData += '<tr><th>Date</th><th>Elevation</th><th>Percent</th><th>Feet Down</th></tr>';
             tableData += '</thead>';
-            tableData += `<tr><td>${ lakeData[0].timestamp }</td><td>${ lakeData[0].elevation }</td><td>${ lakeData[0].percent_full }%</td><td>${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(0) }</td></tr>`;
+            tableData += `<tr><td style="font-weight: bold;">${ lakeData[0].timestamp }</td><td style="font-weight: bold;">${ lakeData[0].elevation }</td><td style="font-weight: bold;">${ lakeData[0].percent_full }%</td><td style="font-weight: bold;">${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(0) }</td></tr>`;
             tableData += '<tr><th colspan="4" style="text-align:center; background-color: #3399FF; padding: 10px;">Past Readings</th></tr>';
             tableData += `<tr><th style="background-color: #3399FF; padding: 10px;">Date</th><th style="background-color: #3399FF; padding: 10px;">Elevation</th><th style="background-color: #3399FF; padding: 10px;">Percent</th><th style="background-color: #3399FF; padding: 10px;">Change</th></tr>`;
 
