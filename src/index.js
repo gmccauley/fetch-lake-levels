@@ -66,7 +66,7 @@ export default {
           const datasets = uniqueLakeNames.map((lakeName, index) => {
             const dataPoints = uniqueTimestamps.map(timestamp => {
               const record = results.find(r => r.full_name === lakeName && r.timestamp === timestamp);
-              return record ? record.elevation : null; // Use null for missing data points
+              return record ? record.percent_full : null; // Use null for missing data points
             });
   
             // Generate a consistent color for each line
@@ -118,7 +118,7 @@ export default {
                         y: {
                           title: {
                             display: true,
-                            text: 'Elevation (feet)'
+                            text: 'Percent Full'
                           },
                           beginAtZero: false // Elevation might not start at zero
                         }
@@ -172,7 +172,7 @@ export default {
             tableData += '<tr><th colspan="4" style="text-align:center; background-color: #3399FF; padding: 10px;">Past Readings</th></tr>';
             tableData += `<tr><th style="background-color: #3399FF; padding: 10px;">Date</th><th style="background-color: #3399FF; padding: 10px;">Elevation</th><th style="background-color: #3399FF; padding: 10px;">Percent</th><th style="background-color: #3399FF; padding: 10px;">Change</th></tr>`;
 
-            [1, 2, 3, 7, 14, 30].forEach(num => {
+            [1, 2, 3, 7, 14, 30, 90, 180, 365].forEach(num => {
               const date = convertToUtcSafeDate(lakeData[0].timestamp)
               date.setUTCDate(date.getUTCDate() - num)
               const data = lakeData.find(item => item.timestamp === date.toISOString().split('T')[0])
