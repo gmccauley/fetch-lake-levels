@@ -20,3 +20,8 @@ INSERT INTO levels VALUES(7,'2025-07-17','2025-07-17T10:00:51.053Z','Canyon Lake
 INSERT INTO levels VALUES(8,'2025-07-17','2025-07-17T10:00:51.053Z','Choke Canyon Reservoir','ChokeCanyon','Choke Canyon',220.5,184.26,12.8);
 INSERT INTO levels VALUES(9,'2025-07-17','2025-07-17T10:00:51.053Z','Medina Lake','Medina','Medina',1064.2,982.77,5.7);
 INSERT INTO levels VALUES(10,'2025-07-17','2025-07-17T10:00:51.053Z','O. H. Ivie Reservoir','OHIvie','O H Ivie',1551.5,1535.71,54.8);
+INSERT INTO levels VALUES(11,'2025-07-18','2025-07-18T11:00:47.980Z','Amistad Reservoir','Amistad','Amistad',1117,1055.52,32.2);
+INSERT INTO levels VALUES(12,'2025-07-18','2025-07-18T11:00:47.980Z','Canyon Lake','Canyon','Canyon',909,891.84,67.1);
+INSERT INTO levels VALUES(13,'2025-07-18','2025-07-18T11:00:47.980Z','Choke Canyon Reservoir','ChokeCanyon','Choke Canyon',220.5,184.24,12.8);
+INSERT INTO levels VALUES(14,'2025-07-18','2025-07-18T11:00:47.980Z','Medina Lake','Medina','Medina',1064.2,983.44,6);
+INSERT INTO levels VALUES(15,'2025-07-18','2025-07-18T11:00:47.980Z','O. H. Ivie Reservoir','OHIvie','O H Ivie',1551.5,1535.72,54.8);
