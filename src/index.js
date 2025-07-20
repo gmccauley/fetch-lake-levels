@@ -23,7 +23,21 @@ export default {
       //   }
       // }
 
-      console.log('URL Path "', url.pathname, '" accessed from ', request.headers.get('CF-Connecting-IP'))
+      // Serve favicon.ico
+      if (url.pathname === '/favicon.ico') {
+        // Replace with your actual base64 encoded favicon data
+        const faviconBase64 = "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"; // Your base64 data
+        const faviconBuffer = Uint8Array.from(atob(faviconBase64), c => c.charCodeAt(0));
+
+        return new Response(faviconBuffer, {
+          headers: {
+            'Content-Type': 'image/png', // Adjust based on your favicon type (e.g., 'image/x-icon' for .ico)
+            'Cache-Control': 'public, max-age=31536000' // Cache for a long time
+          }
+        });
+      } else {
+        console.log('URL "', url.pathname, '" accessed from ', request.headers.get('CF-Connecting-IP'))
+      }
 
       if (url.pathname === '/') {
         try {
