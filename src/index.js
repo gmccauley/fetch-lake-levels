@@ -165,19 +165,19 @@ export default {
             tableData += `<h2>${lake}</h2>`;
             tableData += '<table>';
             tableData += '<thead>';
-            tableData += '<tr><th colspan="4" style="text-align:center">Latest Reading</th></tr>';
-            tableData += '<tr><th>Date</th><th>Elevation</th><th>Percent</th><th>Feet Down</th></tr>';
+            tableData += '<tr><th colspan="5" style="text-align:center">Latest Reading</th></tr>';
+            tableData += '<tr><th>Date</th><th>Full</th><th>Elevation</th><th>Percent</th><th>Feet Down</th></tr>';
             tableData += '</thead>';
-            tableData += `<tr><td style="font-weight: bold;">${ lakeData[0].timestamp }</td><td style="font-weight: bold;">${ lakeData[0].elevation }</td><td style="font-weight: bold;">${ lakeData[0].percent_full }%</td><td style="font-weight: bold;">${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(0) }</td></tr>`;
-            tableData += '<tr><th colspan="4" style="text-align:center; background-color: #3399FF; padding: 10px;">Past Readings</th></tr>';
-            tableData += `<tr><th style="background-color: #3399FF; padding: 10px;">Date</th><th style="background-color: #3399FF; padding: 10px;">Elevation</th><th style="background-color: #3399FF; padding: 10px;">Percent</th><th style="background-color: #3399FF; padding: 10px;">Change</th></tr>`;
+            tableData += `<tr><td style="font-weight: bold;">${ lakeData[0].timestamp }</td><td style="font-weight: bold;">${ lakeData[0].conservation_pool_elevation }</td><td style="font-weight: bold;">${ lakeData[0].elevation }</td><td style="font-weight: bold;">${ lakeData[0].percent_full }%</td><td style="font-weight: bold;">${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(1) }</td></tr>`;
+            tableData += '<tr><th colspan="5" style="text-align:center; background-color: #66B2FF; padding: 10px;">Past Readings</th></tr>';
+            tableData += `<tr><th style="background-color: #66B2FF; padding: 10px;">Date</th><th style="background-color: #66B2FF; padding: 10px;">Days Ago</th><th style="background-color: #66B2FF; padding: 10px;">Elevation</th><th style="background-color: #66B2FF; padding: 10px;">Percent</th><th style="background-color: #66B2FF; padding: 10px;">Change</th></tr>`;
 
             [1, 2, 3, 7, 14, 30, 90, 180, 365].forEach(num => {
               const date = convertToUtcSafeDate(lakeData[0].timestamp)
               date.setUTCDate(date.getUTCDate() - num)
               const data = lakeData.find(item => item.timestamp === date.toISOString().split('T')[0])
               if (data && data.elevation !== undefined && data.elevation !== null) {
-                tableData += `<tr><td>${ data.timestamp }</td><td>${ data.elevation }</td><td>${ data.percent_full }%</td><td>${ (lakeData[0].elevation - data.elevation).toFixed(2) }</td></tr>`;
+                tableData += `<tr><td>${ data.timestamp }</td><td>${ num }</td><td>${ data.elevation }</td><td>${ data.percent_full }%</td><td>${ (lakeData[0].elevation - data.elevation).toFixed(2) }</td></tr>`;
               }
             });
 
