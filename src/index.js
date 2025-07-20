@@ -114,6 +114,10 @@ export default {
                             text: 'Date'
                           },
                           type: 'category', // Treat labels as categories
+                          ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                          }
                         },
                         y: {
                           title: {
