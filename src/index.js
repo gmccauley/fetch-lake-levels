@@ -56,7 +56,7 @@ export default {
 
           console.log(`Attempting to read all data from D1 table: ${tableName} for HTML display.`);
           const { results } = await env.DB.prepare(`SELECT * FROM ${tableName}`).all();
-          console.log('DB Query Result:', results); // <-- Check this!
+          //console.log('DB Query Result:', results); // <-- Check this!
 
 
           let chartData = '';
@@ -120,7 +120,8 @@ export default {
                             display: true,
                             text: 'Percent Full'
                           },
-                          beginAtZero: false // Elevation might not start at zero
+                          min: 0,
+                          max: 100
                         }
                       }
                     }
@@ -161,7 +162,7 @@ export default {
             });
 
 
-            console.log('lakeData: ', lakeData);
+            //console.log('lakeData: ', lakeData);
             tableData += `<h2>${lake}</h2>`;
             tableData += '<table>';
             tableData += '<thead>';
