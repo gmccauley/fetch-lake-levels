@@ -36,7 +36,7 @@ export default {
           }
         });
       } else {
-        console.log('URL "', url.pathname, '" accessed from ', request.headers.get('CF-Connecting-IP'))
+        console.log(`URL "${ url.pathname }" accessed from ${ request.headers.get('CF-Connecting-IP') }`);
       }
 
       if (url.pathname === '/') {
@@ -247,7 +247,7 @@ export default {
    */
   async function fetchDataAndInsertIntoD1(env) {
     const externalApiUrl = 'https://waterdatafortexas.org/reservoirs/recent-conditions.json'; // API endpoint
-    const keysToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'Medina', 'OHIvie'] // JSON Keys to filter on
+    const keysToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'Medina', 'OHIvie', 'Travis'] // JSON Keys to filter on
     const tableName = 'levels'; // Name of your D1 table
   
     try {
