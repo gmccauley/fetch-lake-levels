@@ -51,7 +51,7 @@ export default {
 
           let chartData = '';
           const uniqueTimestamps = [...new Set(results.map(row => row.timestamp))].sort();
-          const uniqueLakeNames = [...new Set(results.map(row => row.full_name))];
+          const uniqueLakeNames = [...new Set(results.map(row => row.full_name))].sort();
   
           const datasets = uniqueLakeNames.map((lakeName, index) => {
             const dataPoints = uniqueTimestamps.map(timestamp => {
