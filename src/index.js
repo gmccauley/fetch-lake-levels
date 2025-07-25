@@ -315,8 +315,6 @@ export default {
       const batchResults = await env.DB.batch(statements);
   
       console.log(`Batch insertion into D1 completed. Results:`, batchResults);
-  
-  
     } catch (error) {
       console.error('Error during data fetching or D1 insertion:', error);
     }
