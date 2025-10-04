@@ -49,7 +49,7 @@ export default {
           //console.log('DB Query Result:', results); // <-- Check this!
 
 
-          let chartData = '';
+          let chartScript = '';
           const uniqueTimestamps = [...new Set(results.map(row => row.timestamp))].sort();
           const uniqueLakeNames = [...new Set(results.map(row => row.full_name))].sort();
   
@@ -74,56 +74,51 @@ export default {
           });
   
           if (results.length > 0) {
-            chartData += `
-                <h1>My Favorite Lakes</h1>
-                <div class="chart-container">
-                  <canvas id="myChart"></canvas>
-                </div>
-
-                <script>
-                  const ctx = document.getElementById('myChart').getContext('2d');
-                  const myChart = new Chart(ctx, {
-                    type: 'line', // Can be 'bar', 'line', 'pie', 'doughnut', etc.
-                    data: {
-                        labels: ${JSON.stringify(uniqueTimestamps)},
-                        datasets: ${JSON.stringify(datasets)}
+            chartScript += `
+              <script>
+                const ctx = document.getElementById('myChart').getContext('2d');
+                const myChart = new Chart(ctx, {
+                  type: 'line', // Can be 'bar', 'line', 'pie', 'doughnut', etc.
+                  data: {
+                      labels: ${JSON.stringify(uniqueTimestamps)},
+                      datasets: ${JSON.stringify(datasets)}
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                      }
                     },
-                    options: {
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        tooltip: {
-                          mode: 'index',
-                          intersect: false,
+                    scales: {
+                      x: {
+                        title: {
+                          display: true,
+                          text: 'Date'
+                        },
+                        type: 'category', // Treat labels as categories
+                        ticks: {
+                          autoSkip: true,
+                          maxTicksLimit: 10
                         }
                       },
-                      scales: {
-                        x: {
-                          title: {
-                            display: true,
-                            text: 'Date'
-                          },
-                          type: 'category', // Treat labels as categories
-                          ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 10
-                          }
+                      y: {
+                        title: {
+                          display: true,
+                          text: 'Percent Full'
                         },
-                        y: {
-                          title: {
-                            display: true,
-                            text: 'Percent Full'
-                          },
-                          min: 0,
-                          max: 100
-                        }
+                        min: 0,
+                        max: 100
                       }
                     }
-                  });
-                </script>
+                  }
+                });
+              </script>
             `;
           } else {
-            chartData += '<p class="no-data">No data found in the table to graph yet.</p>';
+            chartScript += '<p class="no-data">No data found in the table to graph yet.</p>';
           }
 
 
@@ -153,27 +148,30 @@ export default {
 
 
             //console.log('lakeData: ', lakeData);
-            tableData += `<h2>${lake}</h2>`;
-            tableData += '<table>';
-            tableData += '<thead>';
-            tableData += '<tr><th colspan="5" style="text-align:center">Latest Reading</th></tr>';
-            tableData += '<tr><th>Date</th><th>Full</th><th>Elevation</th><th>Percent</th><th>Feet Down</th></tr>';
-            tableData += '</thead>';
-            tableData += `<tr><td style="font-weight: bold;">${ lakeData[0].timestamp }</td><td style="font-weight: bold;">${ lakeData[0].conservation_pool_elevation }</td><td style="font-weight: bold;">${ lakeData[0].elevation }</td><td style="font-weight: bold;">${ lakeData[0].percent_full }%</td><td style="font-weight: bold;">${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(1) }</td></tr>`;
-            tableData += '<tr><th colspan="5" style="text-align:center; background-color: #66B2FF; padding: 10px;">Past Readings</th></tr>';
-            tableData += `<tr><th style="background-color: #66B2FF; padding: 10px;">Date</th><th style="background-color: #66B2FF; padding: 10px;">Days Ago</th><th style="background-color: #66B2FF; padding: 10px;">Elevation</th><th style="background-color: #66B2FF; padding: 10px;">Percent</th><th style="background-color: #66B2FF; padding: 10px;">Change</th></tr>`;
+            tableData += `<div class="lake-card">`;
+            tableData += `  <h2>${lake}</h2>`;
+            tableData += '  <table>';
+            tableData += '    <thead>';
+            tableData += '      <tr><th colspan="5" style="text-align:center">Latest Reading</th></tr>';
+            tableData += '      <tr><th>Date</th><th>Full</th><th>Elevation</th><th>Percent</th><th>Feet Down</th></tr>';
+            tableData += '    </thead>';
+            tableData += '    <tbody>';           
+            tableData += `      <tr><td data-label="Date">${ lakeData[0].timestamp }</td><td data-label="Full">${ lakeData[0].conservation_pool_elevation }</td><td data-label="Elevation">${ lakeData[0].elevation }</td><td data-label="Percent">${ lakeData[0].percent_full }%</td><td data-label="Feet Down">${ (lakeData[0].conservation_pool_elevation - lakeData[0].elevation).toFixed(1) }</td></tr>`;
+            tableData += '      <tr><th colspan="5" style="text-align:center; color:white;">Past Readings</th></tr>';
+            tableData += `      <tr><th style="background-color: #66B2FF; padding: 10px;">Date</th><th style="background-color: #66B2FF; padding: 10px;">Days Ago</th><th style="background-color: #66B2FF; padding: 10px;">Elevation</th><th style="background-color: #66B2FF; padding: 10px;">Percent</th><th style="background-color: #66B2FF; padding: 10px;">Change</th></tr>`;
 
             [1, 2, 3, 7, 14, 30, 90, 180, 365].forEach(num => {
               const date = convertToUtcSafeDate(lakeData[0].timestamp)
               date.setUTCDate(date.getUTCDate() - num)
               const data = lakeData.find(item => item.timestamp === date.toISOString().split('T')[0])
               if (data && data.elevation !== undefined && data.elevation !== null) {
-                tableData += `<tr><td>${ data.timestamp }</td><td>${ num }</td><td>${ data.elevation }</td><td>${ data.percent_full }%</td><td>${ (lakeData[0].elevation - data.elevation).toFixed(2) }</td></tr>`;
+                tableData += `<tr><td data-label="Date">${ data.timestamp }</td><td data-label="Days Ago">${ num }</td><td data-label="Elevation">${ data.elevation }</td><td data-label="Percent">${ data.percent_full }%</td><td data-label="Change">${ (lakeData[0].elevation - data.elevation).toFixed(2) }</td></tr>`;
               }
             });
 
-            tableData += '</table>';
-            tableData += '<br /><hr />';
+            tableData += '    </tbody>';
+            tableData += '   </table>';
+            tableData += '</div>';
           });
 
 
@@ -185,38 +183,178 @@ export default {
               <title>My Lake Levels</title>
               <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
               <style>
-                body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-                h1 { color: #0056b3; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-                th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-                th { background-color: #007bff; color: white; }
-                tr:nth-child(even) { background-color: #f2f2f2; }
-                tr:hover { background-color: #ddd; }
-                .no-data { text-align: center; color: #666; margin-top: 30px; font-size: 1.1em; }
+                /* --- General Modern Styling --- */
+                body { 
+                  font-family: 'Roboto', sans-serif; 
+                  margin: 0; 
+                  background-color: #f8f9fa; 
+                  color: #343a40; 
+                }
+
+                .container {
+                  max-width: 80%;
+                  margin: 0 auto;
+                  padding: 20px;
+                }
+
+                header {
+                  text-align: center;
+                  padding: 20px 0;
+                  border-bottom: 1px solid #dee2e6;
+                  margin-bottom: 30px;
+                }
+
+                h1 { 
+                  color: #0056b3; 
+                  font-size: 2.5rem;
+                  font-weight: 700;
+                  margin: 0;
+                }
+
+                h2 {
+                  font-size: 1.8rem;
+                  color: #007bff;
+                  border-bottom: 2px solid #007bff;
+                  padding-bottom: 10px;
+                  margin-top: 0;
+                }
+
+                /* --- Chart Styling --- */
                 .chart-container {
                   width: 100%;
-                  height: 800px;
-                  max-width: 3000px;
-                  margin: 20px auto;
+                  height: 500px; /* Reduced height for better balance */
                   background-color: #fff;
                   padding: 20px;
                   border-radius: 8px;
-                  box-shadow: 0 0 15px rgba(0,0,0,0.15);
-                  box-sizing: border-box; /* Include padding in width */
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                  box-sizing: border-box; 
+                  margin-bottom: 40px;
                 }
-                /* Responsive adjustments for smaller screens */
-                @media (max-width: 3000px) {
+
+                /* --- Card Layout for Lakes --- */
+                .lakes-grid {
+                  display: grid;
+                  /* Creates 2 columns on medium screens, 3 on large */
+                  grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+                  gap: 25px;
+                }
+                
+                .lake-card {
+                  background-color: #fff;
+                  border-radius: 8px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                  padding: 20px;
+                  overflow-x: auto; /* Ensures table doesn't break card layout */
+                }
+                
+                /* --- Modern Table Styling --- */
+                table { 
+                  width: 100%; 
+                  border-collapse: collapse; 
+                  margin-top: 20px; 
+                }
+
+                th, td { 
+                  border: 1px solid #dee2e6; 
+                  padding: 12px 15px; 
+                  text-align: left; 
+                }
+
+                thead th { 
+                  background-color: #007bff; 
+                  color: white; 
+                  font-weight: 400;
+                }
+                
+                /* Style for sub-headers like "Past Readings" */
+                th[colspan="5"] {
+                  background-color: #6c757d;
+                  font-weight: 400;
+                  text-align: center;
+                }
+
+                tbody tr:nth-child(even) { 
+                  background-color: #f8f9fa; 
+                }
+
+                tbody tr:hover { 
+                  background-color: #e9ecef; 
+                }
+                
+                td.latest-reading {
+                  font-weight: 700;
+                  color: #333;
+                }
+
+                /* --- RESPONSIVE DESIGN --- */
+                @media (max-width: 768px) {
+                  h1 { font-size: 2rem; }
+                  h2 { font-size: 1.5rem; }
+
                   .chart-container {
+                    height: 350px; /* Shorter chart on mobile */
+                  }
+
+                  /* This is the magic for responsive tables */
+                  .lake-card table thead {
+                    display: none; /* Hide the desktop table headers */
+                  }
+                  
+                  .lake-card table, 
+                  .lake-card table tbody, 
+                  .lake-card table tr, 
+                  .lake-card table td {
+                    display: block; /* Make table elements stack vertically */
                     width: 100%;
-                    padding: 15px;
+                  }
+
+                  .lake-card table tr {
+                    margin-bottom: 15px;
+                  }
+
+                  .lake-card table td {
+                    text-align: right; /* Align value to the right */
+                    padding-left: 50%; /* Make room for the label */
+                    position: relative;
+                    border-bottom: 1px solid #dee2e6;
+                  }
+
+                  /* Use the data-label attribute to create a pseudo-header */
+                  .lake-card table td::before {
+                    content: attr(data-label); /* The text comes from the data-label */
+                    position: absolute;
+                    left: 10px;
+                    width: 45%;
+                    text-align: left;
+                    font-weight: bold;
+                  }
+                  
+                  /* Clean up latest reading row on mobile */
+                  .lake-card table tr:first-child td {
+                    background-color: #007bff;
+                    color: white;
                   }
                 }
               </style>
             </head>
             <body>
-              ${ chartData }
-              <hr />
-              ${ tableData }
+              <div class="container">
+                <header>
+                  <h1>My Favorite Lakes</h1>
+                </header>
+
+                <main>
+                  <div class="chart-container">
+                    <canvas id="myChart"></canvas>
+                  </div>
+
+                  <div class="lakes-grid">
+                    ${ tableData }
+                  </div>
+
+                </main>
+              </div>
+              ${ chartScript }
             </body>
             </html>
           `;
