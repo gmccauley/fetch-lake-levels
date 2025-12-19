@@ -22,14 +22,3 @@ This project provides a no/low-cost solution that eliminates the need for manual
     * **Data Visualization:** Utilizes a `fetch` handler to serve formatted JSON to the frontend.
 * **Frontend:** HTML5, CSS3, JavaScript.
 * **Localization:** `Intl.DateTimeFormat` (en-CA) for standardized date/time formatting.
-
-## 🗺️ Project Phases
-
-### Phase 1: Analysis and Design Phase
-This phase focuses on identifying the core problem—accessing viable fishing water during severe drought—and designing a low-cost architecture to solve it. Requirements gathering included identifying specific lakes of interest and defining the metrics (Elevation, Percent Full) required for the dashboard.
-
-### Phase 2: Implementation
-Current development involves coding the backend `scheduled` handlers for data scraping and building the frontend visualization logic (tables and line charts).
-
-### Phase 3: Testing & Deployment
-Future work includes user acceptance testing to verify data accuracy against official USGS/water sources and final deployment to the hosting platform.
