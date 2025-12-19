@@ -9,14 +9,27 @@ export default {
   
     // The 'fetch' handler is invoked when the Worker receives an HTTP request.
     async fetch(request, env, ctx) {
+      function getChangeWithTrendIcon(val) {
+        if (val > 0) {
+          // Positive change (Rising): Green Up Arrow
+          return `<span style="color: green;">&#9650;</span> ${val}`; 
+        } else if (val < 0) {
+            // Negative change (Falling): Red Down Arrow
+            return `<span style="color: red;">&#9660;</span> ${val}`; 
+        } else {
+            // No change: Grey Dash
+            return `<span style="color: gray;">-</span> ${val}`;
+        }
+      }
       const url = new URL(request.url);
       const tableName = 'levels';
   
       // If the path is '/trigger-fetch', manually execute the data fetch logic.
       // if (url.pathname === '/trigger-fetch') {
       //   try {
+      //     console.log(`Manual trigger received at ${new Date().toISOString()}`);
       //     await fetchDataAndInsertIntoD1(env);
-      //     return new Response('Data fetch and D1 insertion initiated successfully!', { status: 200 });
+      //     return new Response('Manual Data fetch and D1 insertion initiated successfully!', { status: 200 });
       //   } catch (error) {
       //     console.error('Error during manual data fetch:', error);
       //     return new Response(`Error: ${error.message}`, { status: 500 });
@@ -46,17 +59,18 @@ export default {
           }
 
           const { results } = await env.DB.prepare(`SELECT * FROM ${tableName}`).all();
-          //console.log('DB Query Result:', results); // <-- Check this!
-
+          //console.log('DB Query Result:', results);
 
           let chartScript = '';
+          // Get Unique Timestamps and Lake Names for X Axis and Series
           const uniqueTimestamps = [...new Set(results.map(row => row.timestamp))].sort();
           const uniqueLakeNames = [...new Set(results.map(row => row.full_name))].sort();
   
+          // Build the DataSet for each lake
           const datasets = uniqueLakeNames.map((lakeName, index) => {
             const dataPoints = uniqueTimestamps.map(timestamp => {
               const record = results.find(r => r.full_name === lakeName && r.timestamp === timestamp);
-              return record ? record.percent_full : null; // Use null for missing data points
+              return record ? record.percent_full : null;
             });
   
             // Generate a consistent color for each line
@@ -73,6 +87,7 @@ export default {
             };
           });
   
+          // Build the client-side javascript for the graph
           if (results.length > 0) {
             chartScript += `
               <script>
@@ -131,6 +146,7 @@ export default {
             return new Date(Date.UTC(year, month, day));
           }
 
+          // Build the Tables for each Lake
           let tableData = '';
           uniqueLakeNames.forEach(lake => {
             const lakeData = results.filter(item => item.full_name === lake);
@@ -165,7 +181,7 @@ export default {
               date.setUTCDate(date.getUTCDate() - num)
               const data = lakeData.find(item => item.timestamp === date.toISOString().split('T')[0])
               if (data && data.elevation !== undefined && data.elevation !== null) {
-                tableData += `<tr><td data-label="Date">${ data.timestamp }</td><td data-label="Days Ago">${ num }</td><td data-label="Elevation">${ data.elevation }</td><td data-label="Percent">${ data.percent_full }%</td><td data-label="Change">${ (lakeData[0].elevation - data.elevation).toFixed(2) }</td></tr>`;
+                tableData += `<tr><td data-label="Date">${ data.timestamp }</td><td data-label="Days Ago">${ num }</td><td data-label="Elevation">${ data.elevation }</td><td data-label="Percent">${ data.percent_full }%</td><td data-label="Change">${ getChangeWithTrendIcon((lakeData[0].elevation - data.elevation).toFixed(2)) }</td></tr>`;
               }
             });
 
@@ -175,7 +191,7 @@ export default {
           });
 
 
-
+          // Build the Responsive Web UI
           let htmlData = `
             <!DOCTYPE html>
             <html>
@@ -384,75 +400,98 @@ export default {
    * @param {Object} env - The environment variables, including the D1 binding.
    */
   async function fetchDataAndInsertIntoD1(env) {
-    const externalApiUrl = 'https://waterdatafortexas.org/reservoirs/recent-conditions.json'; // API endpoint
-    const keysToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'Medina', 'OHIvie', 'Travis'] // JSON Keys to filter on
-    const tableName = 'levels'; // Name of your D1 table
-  
+    const externalApiUrl = 'https://waterdatafortexas.org/reservoirs/recent-conditions.json';
+    const lakesToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'Medina', 'OHIvie', 'Travis']
+    const tableName = 'levels';
+
+    const dateOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      timeZone: 'America/Chicago'
+    };
+    const dateFormatter = new Intl.DateTimeFormat('en-CA', dateOptions); //Using en-CA so the Date is formatted as YYYY-MM-DD
+
     try {
-      // 1. Fetch JSON data from the external API
-      console.log(`Fetching data from: ${externalApiUrl}`);
-      const response = await fetch(externalApiUrl);
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  	  const localDate = dateFormatter.format(new Date());
+	    console.log('localDate:', localDate);
 
-      // Expecting an array of JSON objects
-      const rawJsonDataAll = await response.json();
-      const rawJsonData = Object.fromEntries(Object.entries(rawJsonDataAll).filter(([key]) => keysToInclude.includes(key)));
-      
-      let dataToInsert = [];
+      const { results } = await env.DB.prepare(`SELECT * FROM ${tableName} WHERE timestamp = '${localDate}'`).all();
+      //console.log('DB Query Result:', results);
+      const lakesToExclude = results.map(item => item.condensed_name);
+      console.log('Already Have Data From These Lakes for Today:', lakesToExclude);
 
-      // Try to determine if the fetched data is a direct array, nested array, or an object of items.
-      if (Array.isArray(rawJsonData)) {
-        dataToInsert = rawJsonData;
-        console.log(`Fetched data is a direct array with ${dataToInsert.length} objects.`);
-      } else if (typeof rawJsonData === 'object' && rawJsonData !== null) {
-        const values = Object.values(rawJsonData);
-        // Check if the values are indeed objects and not empty, to avoid processing non-item data
-        if (values.length > 0 && typeof values[0] === 'object' && values[0] !== null) {
-            dataToInsert = values;
-            console.log(`Fetched data is an object, extracted array from its values with ${dataToInsert.length} objects.`);
-        } else {
-            console.warn('Fetched data is an object but does not contain a recognized array (data, items, results) or valid item objects as its direct values. No data to insert.');
-            return;
-        }
+      const keysToInclude = lakesToInclude.filter(key => !lakesToExclude.includes(key));
+      console.log('Need Data From These Lakes for Today:', keysToInclude);
+
+      if (!keysToInclude.length) {
+        console.log('No Data Needed For Today.  Exiting....');
       } else {
-        console.warn('Fetched data is not a valid JSON array or object. No data to insert.');
-        return;
-      }
-  
-      if (dataToInsert.length === 0) {
-        console.warn('No data objects found to insert after parsing. Exiting.');
-        return;
-      }
+        // Fetch JSON data from the external API
+        console.log(`Fetching data from: ${externalApiUrl}`);
+        const response = await fetch(externalApiUrl);
     
-      if (!env.DB) {
-        throw new Error('D1 database binding (env.DB) is not configured. Please check wrangler.toml.');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Expecting an array of JSON objects
+        const rawJsonDataAll = await response.json();
+        const rawJsonData = Object.fromEntries(Object.entries(rawJsonDataAll).filter(([key]) => keysToInclude.includes(key)));
+        
+        let dataToInsert = [];
+
+        // Try to determine if the fetched data is a direct array, nested array, or an object of items.
+        if (Array.isArray(rawJsonData)) {
+          dataToInsert = rawJsonData;
+          console.log(`Fetched data is a direct array with ${dataToInsert.length} objects.`);
+        } else if (typeof rawJsonData === 'object' && rawJsonData !== null) {
+          const values = Object.values(rawJsonData);
+          // Check if the values are indeed objects and not empty, to avoid processing non-item data
+          if (values.length > 0 && typeof values[0] === 'object' && values[0] !== null) {
+              dataToInsert = values;
+              console.log(`Fetched data is an object, extracted array from its values with ${dataToInsert.length} objects.`);
+          } else {
+              console.warn('Fetched data is an object but does not contain a recognized array (data, items, results) or valid item objects as its direct values. No data to insert.');
+              return;
+          }
+        } else {
+          console.warn('Fetched data is not a valid JSON array or object. No data to insert.');
+          return;
+        }
+    
+        if (dataToInsert.length === 0) {
+          console.warn('No data objects found to insert after parsing. Exiting.');
+          return;
+        }
+      
+        if (!env.DB) {
+          throw new Error('D1 database binding (env.DB) is not configured. Please check wrangler.toml.');
+        }
+    
+        const insertStatement = `
+          INSERT OR REPLACE INTO ${tableName} (timestamp, fetched_on, full_name, condensed_name, short_name, conservation_pool_elevation, elevation, percent_full)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        `;
+        const fetchedAt = new Date().toISOString(); // Timestamp when data was fetched
+
+        const statements = [];
+        for (const item of dataToInsert) {
+          const timestamp = item.timestamp !== undefined ? item.timestamp : null;
+          const full_name = item.full_name !== undefined ? item.full_name : null;
+          const condensed_name = item.condensed_name !== undefined ? item.condensed_name : null;
+          const short_name = item.short_name !== undefined ? item.short_name : null;
+          const conservation_pool_elevation = item.conservation_pool_elevation !== undefined ? item.conservation_pool_elevation : null;
+          const elevation = item.elevation !== undefined ? item.elevation : null;
+          const percent_full = item.percent_full !== undefined ? item.percent_full : null;
+
+          statements.push(env.DB.prepare(insertStatement).bind(timestamp, fetchedAt, full_name, condensed_name, short_name, conservation_pool_elevation, elevation, percent_full));
+        }
+
+        const batchResults = await env.DB.batch(statements);
+    
+        console.log(`Batch insertion into D1 completed. Results:`, batchResults);
       }
-  
-      const insertStatement = `
-        INSERT OR REPLACE INTO ${tableName} (timestamp, fetched_on, full_name, condensed_name, short_name, conservation_pool_elevation, elevation, percent_full)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-      `;
-      const fetchedAt = new Date().toISOString(); // Timestamp when data was fetched
-
-      const statements = [];
-      for (const item of dataToInsert) {
-        const timestamp = item.timestamp !== undefined ? item.timestamp : null;
-        const full_name = item.full_name !== undefined ? item.full_name : null;
-        const condensed_name = item.condensed_name !== undefined ? item.condensed_name : null;
-        const short_name = item.short_name !== undefined ? item.short_name : null;
-        const conservation_pool_elevation = item.conservation_pool_elevation !== undefined ? item.conservation_pool_elevation : null;
-        const elevation = item.elevation !== undefined ? item.elevation : null;
-        const percent_full = item.percent_full !== undefined ? item.percent_full : null;
-
-        statements.push(env.DB.prepare(insertStatement).bind(timestamp, fetchedAt, full_name, condensed_name, short_name, conservation_pool_elevation, elevation, percent_full));
-      }
-
-      const batchResults = await env.DB.batch(statements);
-  
-      console.log(`Batch insertion into D1 completed. Results:`, batchResults);
     } catch (error) {
       console.error('Error during data fetching or D1 insertion:', error);
     }
