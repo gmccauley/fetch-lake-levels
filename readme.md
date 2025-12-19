@@ -2,6 +2,8 @@
 
 **A Capstone IT Solution for Strategic Fishing in Texas Drought Conditions**
 
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://lakes.grm.ninja/)
+
 ## 📖 Overview
 **Fetch Lake Levels** is a custom web application designed to assist avid fishermen in selecting the best fishing locations based on real-time water level data.
 
