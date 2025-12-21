@@ -417,7 +417,7 @@ export default {
 	    console.log('localDate:', localDate);
 
       const { results } = await env.DB.prepare(`SELECT * FROM ${tableName} WHERE timestamp = '${localDate}'`).all();
-      //console.log('DB Query Result:', results);
+      console.log('Existing DB Query Result:', results);
       const lakesToExclude = results.map(item => item.condensed_name);
       console.log('Already Have Data From These Lakes for Today:', lakesToExclude);
 
@@ -436,8 +436,10 @@ export default {
         }
 
         // Expecting an array of JSON objects
-        const rawJsonDataAll = await response.json();
-        const rawJsonData = Object.fromEntries(Object.entries(rawJsonDataAll).filter(([key]) => keysToInclude.includes(key)));
+        const rawJsonDataAllData = await response.json();
+        const rawJsonDataAll = Object.fromEntries(Object.entries(rawJsonDataAllData).filter(([key]) => keysToInclude.includes(key)));
+        const rawJsonData = Object.fromEntries(Object.entries(rawJsonDataAll).filter(([key, lake]) => lake.timestamp === localDate));
+        console.log('rawJsonData:', rawJsonData);
         
         let dataToInsert = [];
 
