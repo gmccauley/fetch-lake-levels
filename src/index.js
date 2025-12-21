@@ -367,8 +367,12 @@ export default {
                   <div class="lakes-grid">
                     ${ tableData }
                   </div>
-
                 </main>
+
+                <footer style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; font-family: sans-serif; color: #6b7280; font-size: 0.875rem;">
+                    <p style="margin: 0;"> Data provided by <a href="https://www.waterdatafortexas.org" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">Water Data for Texas</a> (Texas Water Development Board).</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.75rem;">This application is for informational purposes only and is not officially affiliated with the TWDB.</p>
+                </footer>
               </div>
               ${ chartScript }
             </body>
