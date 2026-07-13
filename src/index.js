@@ -405,7 +405,7 @@ export default {
    */
   async function fetchDataAndInsertIntoD1(env) {
     const externalApiUrl = 'https://waterdatafortexas.org/reservoirs/recent-conditions.json';
-    const lakesToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'Medina', 'OHIvie', 'Travis']
+    const lakesToInclude = ['Canyon', 'Amistad', 'ChokeCanyon', 'JBThomas', 'Medina', 'OHIvie', 'Travis']
     const tableName = 'levels';
 
     const dateOptions = {
